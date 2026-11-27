@@ -1,3 +1,4 @@
+
 import { ICreateLoanDTO } from '../dtos/loan.dto';
 import { DomainError } from '../errors/domain.error';
 import {
@@ -32,49 +33,57 @@ export class LoanService {
         'El filtro roomId debe ser un UUID válido.'
       );
     }
+
     return this.loanRepository.findAll({
       roomId: filters.roomId?.toLowerCase()
     });
   }
 
-  public async getLoanDetail(id: number): Promise<Loan> {
+  public async getLoanDetail(id: string): Promise<Loan> {
     this.validateId(id);
+
     const loan = await this.loanRepository.findById(id);
+
     if (!loan) {
       throw new DomainError(
         'NOT_FOUND',
         `No existe un préstamo con identificador ${id}.`
       );
     }
+
     return loan;
   }
 
-  public async acceptLoan(id: number): Promise<Loan> {
+  public async acceptLoan(id: string): Promise<Loan> {
     this.validateId(id);
+
     const updatedLoan = await this.loanRepository.updateStatus(
       id,
       'PENDIENTE_APROBACION',
       'APROBADO_Y_FIRMADO'
     );
+
     if (updatedLoan) {
       return updatedLoan;
     }
 
     const currentLoan = await this.loanRepository.findById(id);
+
     if (!currentLoan) {
       throw new DomainError(
         'NOT_FOUND',
         `No existe un préstamo con identificador ${id}.`
       );
     }
+
     throw new DomainError(
       'CONFLICT',
       'El préstamo ya fue aceptado y no puede aceptarse nuevamente.'
     );
   }
 
-  private validateId(id: number): void {
-    if (!Number.isInteger(id) || id <= 0) {
+  private validateId(id: string): void {
+    if (!/^[1-9]\d*$/.test(id)) {
       throw new DomainError(
         'VALIDATION_ERROR',
         'El identificador del préstamo debe ser un entero positivo.'

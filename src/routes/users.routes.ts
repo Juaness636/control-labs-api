@@ -6,7 +6,6 @@ const router = Router();
 router.get('/search', UsersController.getUsersByFilter);
 router.post('/', UsersController.createUser);
 router.get('/:id', UsersController.getUserById );
-router.patch('/:id', UsersController.acceptUserInventory );
 router.put('/:id/inactivate', UsersController.inactivateUser );
 
 

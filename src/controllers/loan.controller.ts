@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import { loanService } from '../container';
 import { DomainError } from '../errors/domain.error';
@@ -9,7 +10,11 @@ export class LoanController {
     res: Response
   ): Promise<void> => {
     const loan = await loanService.createLoan(req.body);
-    res.status(201).json({ success: true, data: loan });
+
+    res.status(201).json({
+      success: true,
+      data: loan
+    });
   };
 
   public static getLoansByFilter = async (
@@ -17,6 +22,7 @@ export class LoanController {
     res: Response
   ): Promise<void> => {
     const { roomId } = req.query;
+
     if (roomId !== undefined && typeof roomId !== 'string') {
       throw new DomainError(
         'VALIDATION_ERROR',
@@ -25,22 +31,34 @@ export class LoanController {
     }
 
     const loans = await loanService.getLoans({ roomId });
-    res.status(200).json({ success: true, data: loans });
+
+    res.status(200).json({
+      success: true,
+      data: loans
+    });
   };
 
   public static getLoanById = async (
     req: Request<{ id: string }>,
     res: Response
   ): Promise<void> => {
-    const loan = await loanService.getLoanDetail(Number(req.params.id));
-    res.status(200).json({ success: true, data: loan });
+    const loan = await loanService.getLoanDetail(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data: loan
+    });
   };
 
   public static acceptLoanInventory = async (
     req: Request<{ id: string }>,
     res: Response
   ): Promise<void> => {
-    const loan = await loanService.acceptLoan(Number(req.params.id));
-    res.status(200).json({ success: true, data: loan });
+    const loan = await loanService.acceptLoan(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data: loan
+    });
   };
 }

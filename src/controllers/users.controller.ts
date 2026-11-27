@@ -1,49 +1,77 @@
 import { Request, Response } from 'express';
+import { userService } from '../container';
+import { DomainError } from '../errors/domain.error';
+import { ICreateUserDTO, UserFilters } from '../dtos/users.dto';
 
 export class UsersController {
-  public static createUser = (req: Request, res: Response): void => {
-    // TODO: llamar al servicio con req.body y responder 201 con el préstamo creado.
-    res.status(501).json({
-      success: false,
-      message: 'El registro de usuarios todavía no está implementado.'
+  public static createUser = async (
+    req: Request<Record<string, string>, unknown, ICreateUserDTO>,
+    res: Response
+  ): Promise<void> => {
+    const user = await userService.createUser(req.body);
+
+    res.status(201).json({
+      success: true,
+      data: user
     });
   };
 
-  public static getUsersByFilter = (req: Request, res: Response): void => {
-    // TODO: tomar los filtros de req.query, llamar al servicio y responder con los resultados.
-    res.status(501).json({
-      success: false,
-      message: 'Obter usuarios todavía no está implementada.'
+  public static getUsersByFilter = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const { email, nombre, rol, activo } = req.query;
+
+    if (
+      (email !== undefined && typeof email !== 'string') ||
+      (nombre !== undefined && typeof nombre !== 'string') ||
+      (rol !== undefined && typeof rol !== 'string') ||
+      (activo !== undefined &&
+        activo !== 'true' &&
+        activo !== 'false')
+    ) {
+      throw new DomainError(
+        'VALIDATION_ERROR',
+        'Los filtros enviados no tienen un formato válido.'
+      );
+    }
+
+    const filters: UserFilters = {
+      email: email as string | undefined,
+      nombre: nombre as string | undefined,
+      rol: rol as string | undefined,
+      activo: activo === undefined ? undefined : activo === 'true'
+    };
+
+    const users = await userService.getUsers(filters);
+
+    res.status(200).json({
+      success: true,
+      data: users
     });
   };
 
-  public static getUserById = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    // TODO: pasar id a la operación de consulta y responder con el préstamo encontrado.
-    res.status(501).json({
-      success: false,
-      message: `La consulta del usuario ${id} todavía no está implementada.`
+  public static getUserById = async (
+    req: Request<{ id: string }>,
+    res: Response
+  ): Promise<void> => {
+    const user = await userService.getUserDetail(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data: user
     });
   };
 
-  public static acceptUserInventory  = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    // TODO: pasar id a la operación de aceptación y responder con el resultado.
-    res.status(501).json({
-      success: false,
-      message: `La aceptación del usuario ${id} todavía no está implementada.`
-    });
-  };
+  public static inactivateUser = async (
+    req: Request<{ id: string }>,
+    res: Response
+  ): Promise<void> => {
+    const user = await userService.inactivateUser(req.params.id);
 
-  public static inactivateUser = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    // TODO: pasar id a la operación de eliminación y responder con el resultado.
-    res.status(501).json({
-      success: false,
-      message: `La eliminación del usuario ${id} todavía no está implementada.`
+    res.status(200).json({
+      success: true,
+      data: user
     });
   };
 }
-
-
-                
