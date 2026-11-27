@@ -10,3 +10,5 @@ router.patch('/:id', labsController.acceptLabInventory );
 
 
 export default router;
+
+
